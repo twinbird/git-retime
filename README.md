@@ -89,3 +89,24 @@ go build ./cmd/git-retime
 ```
 
 テストは一時リポジトリと代替エディタを使います。SHA-1 / SHA-256、マージ、linked worktree、メタデータの保持、未コミット変更の保持、競合時の中止と復旧を検証します。CI は macOS / Linux で実行します。
+
+## GitHub Releases への公開
+
+Release ワークフローは `v1.0.0` などのタグを push すると起動します。macOS / Linux のテストが成功した後、各 OS の amd64 / arm64 用バイナリをビルドし、README を含む 4 個の `.tar.gz` と SHA-256 の `checksums.txt` を GitHub Release に添付します。リリースノートは自動生成します。
+
+変更をコミットして GitHub に push した後、公開するコミットにタグを付けます。
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+`v1.0.0-rc.1` のようなタグはプレリリースとして公開します。認証には Actions の `GITHUB_TOKEN` を使うため、追加のシークレット登録は不要です。同じタグの公開済み Release は上書きしません。公開途中の失敗で Release が残った場合は、GitHub 上の状態を確認してから再実行してください。
+
+ローカルで配布ファイルだけを作る場合は、空の出力ディレクトリを指定します。
+
+```sh
+bash scripts/release-build.sh v1.0.0 /tmp/git-retime-release
+```
+
+ダウンロードしたアーカイブを展開し、`git-retime` を PATH 上に配置してください。実行先には Git 2.48 以降が必要です。
